@@ -1,11 +1,8 @@
 {
   "name": "fromable",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
-  },
   "scripts": {
     "test": "jest --watch",
     "clean": "rm -rf dist && mkdir dist",
@@ -17,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "fromable"
+    "url": "https://github.com/baron816/fromable.git"
   },
   "keywords": [
     "javascript",

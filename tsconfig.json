@@ -1,0 +1,25 @@
+{
+    "compilerOptions": {
+      "outDir": "./dist/",
+      "strict": true,
+      "declaration": true,
+      "sourceMap": true,
+      "resolveJsonModule": true,
+      "module": "CommonJS",
+      "target": "es5",
+      "alwaysStrict": true,
+      "downlevelIteration": true,
+      "lib": ["esnext", "dom", "esnext.asynciterable"],
+      "esModuleInterop": true,
+      "forceConsistentCasingInFileNames": true,
+      "baseUrl": "."
+    },
+    "include": [
+      "**/*.d.ts",
+      "**/*.ts"
+    ],
+    "exclude": [
+      "node_modules",
+      "**/*.test.*"
+    ]
+  }

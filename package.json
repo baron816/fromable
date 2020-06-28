@@ -1,0 +1,41 @@
+{
+  "name": "fromable",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
+  "scripts": {
+    "test": "jest --watch",
+    "clean": "rm -rf dist && mkdir dist",
+    "build": "npm run clean && npm run build:types && npm run build:js",
+    "build:types": "tsc --emitDeclarationOnly",
+    "build:js": "babel src --out-dir dist --extensions \".ts,.txt\" --source-maps inline",
+    "prepare": "npm run build",
+    "ts": "tsc --noEmit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "fromable"
+  },
+  "keywords": [
+    "javascript",
+    "typescript"
+  ],
+  "author": "Baron Willeford",
+  "license": "MIT",
+  "devDependencies": {
+    "@babel/cli": "^7.10.3",
+    "@babel/core": "^7.10.3",
+    "@babel/preset-env": "^7.10.3",
+    "@babel/preset-typescript": "^7.10.1",
+    "@types/jest": "^26.0.3",
+    "babel-jest": "^26.1.0",
+    "jest": "^26.1.0",
+    "ts-jest": "^26.1.1",
+    "typescript": "^3.9.5"
+  },
+  "dependencies": {},
+  "description": "transform iterables with map/filter without intermediate values"
+}

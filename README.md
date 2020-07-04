@@ -36,8 +36,14 @@ from(new Set([1,2,3,4,5,6]))
 // add entries to an object
 from("abc")
     .map((val, idx) => [v, i])
-    .into({}, (collection, [key, val]) => {
-        collection[key] = val;
-        return c;
-    }) //=> { a: 1, b: 2, c: 3}
+    .into({}) //=> { a: 1, b: 2, c: 3}
+
+// zip together multiple iterables
+from([1, 2, 3], [4, 5, 6], [7, 8, 9]) 
+    .map(([first, second, third]) => first + second + third)
+    .into([]) //=> [12, 15, 18]
+
+// use custom combiner
+from([1,2,3,4])
+    .into(new Queue, (queue, curr) => queue.enqueue(curr)) //=> Queue <1, 2, 3, 4>
 ```

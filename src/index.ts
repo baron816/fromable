@@ -104,20 +104,24 @@ class From<T> {
 
     const noValue = Symbol();
     let counter = 0;
+    const filteredCounts = [0];
     for (const val of this.iterable) {
       const possibleResult = this.callers.reduce(
-        (acc, curr) => {
-          if (acc === noValue) {
-            return acc;
-          }
-
-          switch (curr.type) {
-            case mapSymbol:
-              return curr.fn(acc, counter);
+        (acc, curr, idx) => {
+            if (acc === noValue) {
+                return acc;
+            }
+            
+            const valueIndex = counter - (filteredCounts.slice(0, idx + 1).reduce((a, b) => a + b));
+            
+            switch (curr.type) {
+                case mapSymbol:
+              return curr.fn(acc, valueIndex);
             case filterSymbol:
-              if (curr.fn(acc, counter)) {
+              if (curr.fn(acc, valueIndex)) {
                 return acc;
               } else {
+                filteredCounts[idx + 1] = (filteredCounts[idx + 1] ?? 0) + 1;
                 return noValue;
               }
             default:

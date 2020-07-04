@@ -72,4 +72,53 @@ describe('from', () => {
 
         expect(result).toBe(15)
     })
+
+    it('gets the indexes', () => {
+        const result = from([1,2,3,4,5])
+            .map((v, i) => i)
+            .into([]);
+
+        expect(result).toEqual([0, 1, 2, 3, 4])
+    })
+
+    it('gets the indexes when filtered once', () => {
+        const result = from([1,2,3,4,5])
+            .filter(v => v > 2)
+            .map((v, i) => i)
+            .into([])
+
+        expect(result).toEqual([0, 1, 2])
+    })
+
+    it('gets the indexs when filtered twice', () => {
+        const result = from([1,2,3,4,5])
+            .filter(v => v > 1)
+            .filter(v => v > 2)
+            .map((v, i) => [v, i])
+            .into([])
+
+        expect(result).toEqual([[3, 0], [4, 1], [5, 2]])
+    })
+
+    it('gets the indexes when filtered three times', () => {
+        const result = from([1,2,3,4,5,6])
+            .filter(v => v > 1)
+            .filter(v => v !== 3)
+            .filter(v => v < 6)
+            .map((v, i) => [v, i])
+            .into([]);
+
+        expect(result).toEqual([[2, 0], [4, 1], [5, 2]])
+    })
+
+    it('gets the indexes when mapped and filtered', () => {
+        const result = from([1,2,3,4,5,6])
+            .filter(v => v % 2 === 0)
+            .map(v => v ** 2)
+            .filter(v => v !== 16)
+            .map((v, i) => [v, i])
+            .into([]);
+
+        expect(result).toEqual([[4, 0], [36, 1]])
+    })
 })

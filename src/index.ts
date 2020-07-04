@@ -29,11 +29,32 @@ type CollectionResult<T, R>  =
     T extends {} ? { [key: string]: GetTuplePosition<R, 1> }:
     unknown;
 
-class From<T> {
-  callers: Array<MapObj | FilterObj>
+function* zipIterables<T>(
+    ...iterables: Array<Iterable<T> | never>
+    ): Iterable<Array<T | undefined>> {
+    const gens = iterables.map(iter => iter[Symbol.iterator]());
+    
+    function nextAll() {
+        return gens.map(g => g.next());
+    }
+    
+    let nextObjs = nextAll();
+    
+    while (!nextObjs.every(v => v.done)) {
+        yield nextObjs.map(v => v.value);
+        nextObjs = nextAll();
+    }
+    }
 
-  constructor(readonly iterable: Iterable<T>) {
-    this.iterable = iterable;
+class From<T, U extends Array<Iterable<T> | never>> {
+  callers: Array<MapObj | FilterObj>
+  readonly iterable: Iterable<T> | Iterable<(T | undefined)[]>;
+
+  constructor(iterable: Iterable<T>, ...optionalIterables: U) {
+    this.iterable =
+      optionalIterables.length > 0
+        ? zipIterables(iterable, ...optionalIterables)
+        : iterable;
     this.callers = [];
   }
 
@@ -42,7 +63,7 @@ class From<T> {
    * 
    * @param mapper A pure function that transforms any value.
    */
-  map<B>(mapper: (value: T, index: number) => B): From<B> {
+  map<B>(mapper: (value: U extends never[] ? T : T[], index: number) => B): From<B, never[]> {
     this.callers.push({
       type: mapSymbol,
       fn: mapper
@@ -57,7 +78,7 @@ class From<T> {
    * 
    * @param predicate A pure functions that returns true or false.
    */
-  filter(predicate: (value: T, index: number) => boolean): From<T> {
+  filter(predicate: (value: T, index: number) => boolean): From<T, U> {
     this.callers.push({
       type: filterSymbol,
       fn: predicate
@@ -142,11 +163,14 @@ class From<T> {
 }
 
 /**
- * 
- * @param a any Iterable
  * Allows for chaining of `.map` and `.filter` on any Iterable and collecting
  * result into a collection without creating intermediate collections.
+ * 
+ * If other iterables are pass in, they will be iterated over at the same time and zipped together into an array.
+ * 
+ * @param iterable any Iterable
+ * @param optionalIterables optionally other iterables that will be iteratated over at at the same time.
  */
-export function from<A>(a: Iterable<A>): From<A> {
-  return new From(a);
+export function from<A, B extends Iterable<A>[]>(iterable: Iterable<A>, ...optionalIterables: B): From<A, B> {
+    return new From(iterable, ...optionalIterables);
 }

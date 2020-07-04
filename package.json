@@ -1,6 +1,6 @@
 {
   "name": "fromable",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -30,6 +30,7 @@
     "@types/jest": "^26.0.3",
     "babel-jest": "^26.1.0",
     "jest": "^26.1.0",
+    "regenerator-runtime": "^0.13.5",
     "ts-jest": "^26.1.1",
     "typescript": "^3.9.5"
   },

@@ -1,3 +1,4 @@
+import "regenerator-runtime/runtime";
 import { from } from '../src/index';
 
 describe('from', () => {
@@ -120,5 +121,13 @@ describe('from', () => {
             .into([]);
 
         expect(result).toEqual([[4, 0], [36, 1]])
+    })
+
+    it('zips together iterables', () => {
+        const result = from([1,2,3,4], [5,6,7,8])
+            .map(([a, b]) => a + b)
+            .into([])
+
+        expect(result).toEqual([6, 8, 10, 12])
     })
 })

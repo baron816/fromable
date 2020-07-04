@@ -3,7 +3,7 @@
 Fromable allows you take any iterable, tranform it using `.map` and `.filter`, and then output it into a collection, without creating intermediate values.
 
 ## Motivation
-`arr.filter(isSomething).map(transform);` will allocate two new arrays into memory, when you only want one. Each time you run `.filter` or `.map`, you're creating a whole new array, which will need to be cleaned up.
+`arr.filter(isSomething).map(transform);` will allocate two new arrays into memory, when you only want one. Each time you run `.filter` or `.map`, you're creating a whole new array, which will need to be garbage collected.
 
 Additionally, it only operates on arrays. filtering/mapping on Sets/Maps/strings is not [yet](https://github.com/tc39/proposal-iterator-helpers) possible.
 
@@ -15,7 +15,7 @@ Additionally, it only operates on arrays. filtering/mapping on Sets/Maps/strings
 
 `from` will accept any Iterable (array, string, Set, Map, etc).
 
-`into` will accept a number, string, array, Set, Map, or object. It accepts an optional second argument, which will handle combinations.
+`into` will accept a number, string, array, Set, Map, or object. It accepts an optional second argument, which will handle custom combinations.
 
 ```typescript
 import { from } from 'fromable'; // 😆

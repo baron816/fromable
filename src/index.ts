@@ -11,24 +11,68 @@ interface FilterObj {
   fn: (value: any, index: number) => boolean;
 }
 
-export function from<T>(iterable: Iterable<T>) {
-  const callers: Array<MapObj | FilterObj> = [];
+type Collection = Map<any, any>
+| Set<any>
+| { [key: string]: any }
+| any[]
+| string
+| number;
 
-  const api = Object.freeze({
-    into,
-    map,
-    filter
-  });
+type GetTuplePosition<T, N extends number> = T extends any[] ? T[N] : never;
 
-  function into<
-    K extends
-      | Map<any, any>
-      | Set<any>
-      | { [key: string]: any }
-      | any[]
-      | string
-      | number
-  >(collection: K, combinerFn?: (collection: K, val: any) => K): K {
+type CollectionResult<T, R>  =
+    T extends Set<any> ? Set<R> : 
+    T extends number ? number :
+    T extends string ? string :
+    T extends any[] ? R[] :
+    T extends Map<any, any> ? Map<GetTuplePosition<R, 0>, GetTuplePosition<R, 1>> :
+    T extends {} ? { [key: string]: GetTuplePosition<R, 1> }:
+    unknown;
+
+class From<T> {
+  callers: Array<MapObj | FilterObj>
+
+  constructor(readonly iterable: Iterable<T>) {
+    this.iterable = iterable;
+    this.callers = [];
+  }
+
+  /**
+   * For each value in the iterable, it will call the mapper and add the result to the collection.
+   * 
+   * @param mapper A pure function that transforms any value.
+   */
+  map<B>(mapper: (value: T, index: number) => B): From<B> {
+    this.callers.push({
+      type: mapSymbol,
+      fn: mapper
+    });
+
+    // @ts-ignore
+    return this;
+  }
+
+  /**
+   * For each value in the iterable, it will call the predicate with the current value, and the index, only advancing values that advance to true.
+   * 
+   * @param predicate A pure functions that returns true or false.
+   */
+  filter(predicate: (value: T, index: number) => boolean): From<T> {
+    this.callers.push({
+      type: filterSymbol,
+      fn: predicate
+    });
+
+    return this;
+  }
+
+  /**
+   * Will invoke all chained map and fitlers on the iterable, adding the result to the collection.
+   * 
+   * @param collection The resulting collection.
+   * @param combinerFn A custom combiner function for collecting values into the collection. If ommitted, will use default combiners based on the collection type.
+   */
+  into<J extends Collection>(collection: J, combinerFn?: (collection: J, val: any) => J): CollectionResult<J, T> {
     function combine(val: any) {
       if (combinerFn != null) {
         collection = combinerFn(collection, val);
@@ -36,8 +80,21 @@ export function from<T>(iterable: Iterable<T>) {
         collection.push(val);
       } else if (collection instanceof Set) {
         collection.add(val);
-      } else if (collection instanceof Map && Array.isArray(val)) {
-        collection.set(val[0], val[1]);
+      } else if (collection instanceof Map) {
+        if (Array.isArray(val)) {
+            collection.set(val[0], val[1]);
+        } else {
+            throw Error(`Collecting into a Map requires a tuple array, with the key in
+            the first position and the value in the second`);
+        }
+      } else if (typeof collection === "object") {
+        if (Array.isArray(val)) {
+            const [key, value] = val;
+            (collection as { [key: string]: any })[key] = value;
+        } else {
+            throw Error(`Collecting into an Object requires a tuple array, with the key in
+            the first position and the value in the second`); 
+        }
       } else if (typeof collection === "string") {
         (collection as string) += val;
       } else if (typeof collection === "number") {
@@ -47,10 +104,8 @@ export function from<T>(iterable: Iterable<T>) {
 
     const noValue = Symbol();
     let counter = 0;
-    for (const val of iterable) {
-      counter += 1;
-      const possibleResult = callers.reduce(
-        // eslint-disable-next-line no-loop-func
+    for (const val of this.iterable) {
+      const possibleResult = this.callers.reduce(
         (acc, curr) => {
           if (acc === noValue) {
             return acc;
@@ -75,29 +130,19 @@ export function from<T>(iterable: Iterable<T>) {
       if (possibleResult !== noValue) {
         combine(possibleResult);
       }
+      counter += 1;
     }
-    return collection;
-  }
 
-  function map<V extends T>(mapper: (value: V, index: number) => any) {
-    callers.push({
-      type: mapSymbol,
-      fn: mapper
-    });
-    return api;
+    return collection as CollectionResult<J, T>;
   }
-
-  function filter<V extends T>(
-    predicate: (value: V, index: number) => boolean
-  ) {
-    callers.push({
-      type: filterSymbol,
-      fn: predicate
-    });
-    return api;
-  }
-
-  return api;
 }
 
-export default { from };
+/**
+ * 
+ * @param a any Iterable
+ * Allows for chaining of `.map` and `.filter` on any Iterable and collecting
+ * result into a collection without creating intermediate collections.
+ */
+export function from<A>(a: Iterable<A>): From<A> {
+  return new From(a);
+}

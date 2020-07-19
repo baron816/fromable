@@ -45,5 +45,5 @@ from([1, 2, 3], [4, 5, 6], [7, 8, 9])
 
 // use custom combiner
 from([1,2,3,4])
-    .into(new Queue, (queue, curr) => queue.enqueue(curr)) //=> Queue <1, 2, 3, 4>
+    .into(new Queue(), (queue, curr) => queue.enqueue(curr)) //=> Queue <1, 2, 3, 4>
 ```

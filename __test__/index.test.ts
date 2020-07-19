@@ -130,4 +130,12 @@ describe('from', () => {
 
         expect(result).toEqual([6, 8, 10, 12])
     })
+
+    it('zips together iterables of different types', () => {
+        const result = from([1,2,3], ['7', '8', '9'], [1, 2, 3], [{ a: 1}])
+            .map(([a, b, c, d]) => a + Number(b))
+            .into([])
+
+        expect(result).toEqual([8, 10, 12])
+    })
 })

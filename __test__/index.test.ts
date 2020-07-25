@@ -133,6 +133,7 @@ describe('from', () => {
 
     it('zips together iterables of different types', () => {
         const result = from([1,2,3], ['7', '8', '9'], [1, 2, 3], [{ a: 1}])
+            .filter(([a, b, c, d]) => d != null)
             .map(([a, b, c, d]) => a + Number(b))
             .into([])
 

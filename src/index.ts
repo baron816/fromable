@@ -109,7 +109,28 @@ class From<T, U extends Array<Iterable<any> | never>> {
    *
    * @param predicate A functions that returns true or false.
    */
-  filter(predicate: (value: T, index: number) => boolean): From<T, U> {
+  filter(
+    predicate: (
+      value: U extends never[]
+        ? T
+        : U[10] extends undefined
+        ? [
+            T | undefined,
+            Position<U, 0>,
+            Position<U, 1>,
+            Position<U, 2>,
+            Position<U, 3>,
+            Position<U, 4>,
+            Position<U, 5>,
+            Position<U, 6>,
+            Position<U, 7>,
+            Position<U, 8>,
+            Position<U, 9>
+          ]
+        : T[],
+      index: number
+    ) => boolean
+  ): From<T, U> {
     this.callers.push({
       type: filterSymbol,
       fn: predicate,

@@ -35,7 +35,7 @@ from(new Set([1,2,3,4,5,6]))
 
 // add entries to an object
 from("abc")
-    .map((val, idx) => [v, i])
+    .map((val, i) => [v, i])
     .into({}) //=> { a: 1, b: 2, c: 3}
 
 // zip together multiple iterables
